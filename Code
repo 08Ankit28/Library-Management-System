@@ -1,0 +1,141 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <fstream>
+
+using namespace std;
+
+// Book structure to hold book information
+struct Book {
+    string title;
+    string author;
+    int year;
+};
+
+// Library class to manage the collection of books
+class Library {
+private:
+    vector<Book> books;
+
+public:
+    // Function to add a new book
+    void addBook(const string& title, const string& author, int year) {
+        Book newBook = {title, author, year};
+        books.push_back(newBook);
+        cout << "Book added successfully!" << endl;
+    }
+
+    // Function to display all books
+    void displayBooks() {
+        if (books.empty()) {
+            cout << "No books available in the library." << endl;
+            return;
+        }
+        cout << "List of Books:" << endl;
+        for (const auto& book : books) {
+            cout << "Title: " << book.title 
+                 << ", Author: " << book.author 
+                 << ", Year: " << book.year << endl;
+        }
+    }
+
+    // Function to search for a book by title
+    void searchBook(const string& title) {
+        bool found = false;
+        for (const auto& book : books) {
+            if (book.title == title) {
+                cout << "Book found!" << endl;
+                cout << "Title: " << book.title 
+                     << ", Author: " << book.author 
+                     << ", Year: " << book.year << endl;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            cout << "Book not found." << endl;
+        }
+    }
+
+    // Function to delete a book by title
+    void deleteBook(const string& title) {
+        auto it = remove_if(books.begin(), books.end(), [&](const Book& book) {
+            return book.title == title;
+        });
+        if (it != books.end()) {
+            books.erase(it, books.end());
+            cout << "Book deleted successfully!" << endl;
+        } else {
+            cout << "Book not found." << endl;
+        }
+    }
+
+    // Function to update book information
+    void updateBook(const string& title) {
+        for (auto& book : books) {
+            if (book.title == title) {
+                cout << "Enter new author name: ";
+                cin.ignore();
+                getline(cin, book.author);
+                cout << "Enter new publication year: ";
+                cin >> book.year;
+                cout << "Book updated successfully!" << endl;
+                return;
+            }
+        }
+        cout << "Book not found." << endl;
+    }
+
+    // Function to save books to a file
+    void saveToFile(const string& filename) {
+        ofstream outFile(filename);
+        if (!outFile) {
+            cout << "Error opening file for writing." << endl;
+            return;
+        }
+        for (const auto& book : books) {
+            outFile << book.title << "," << book.author << "," << book.year << endl;
+        }
+        outFile.close();
+        cout << "Books saved to " << filename << " successfully!" << endl;
+    }
+
+    // Function to load books from a file
+    void loadFromFile(const string& filename) {
+        ifstream inFile(filename);
+        if (!inFile) {
+            cout << "Error opening file for reading." << endl;
+            return;
+        }
+        books.clear();
+        string line;
+        while (getline(inFile, line)) {
+            size_t pos1 = line.find(',');
+            size_t pos2 = line.find(',', pos1 + 1);
+            if (pos1 != string::npos && pos2 != string::npos) {
+                string title = line.substr(0, pos1);
+                string author = line.substr(pos1 + 1, pos2 - pos1 - 1);
+                int year = stoi(line.substr(pos2 + 1));
+                addBook(title, author, year);
+            }
+        }
+        inFile.close();
+        cout << "Books loaded from " << filename << " successfully!" << endl;
+    }
+};
+
+// Main function to run the library management system
+int main() {
+    Library library;
+    int choice;
+
+    do {
+        cout << "\nLibrary Management System" << endl;
+        cout << "1. Add Book" << endl;
+        cout << "2. Display Books" << endl;
+        cout << "3. Search Book" << endl;
+        cout << "4. Delete Book" << endl;
+        cout << "5. Update Book" << endl;
+        cout << "6. Save Books to File" << endl;
+        cout << "7. Load Books from File" << endl;
+        cout << "8.
